@@ -6,11 +6,11 @@ from chatbot import router as chatbot_router
 
 app = FastAPI()
 
-origins = ["http://localhost:3000","http://localhost:5000","https://chatbotprojekt-create.web.app/"]
+# origins = ["http://localhost:3000","http://localhost:5000","https://chatbotprojekt-create.web.app/"]
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=origins,
+    allow_origins=["*"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],

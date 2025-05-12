@@ -3,5 +3,8 @@ uvicorn
 bcrypt
 python-jose
 python-multipart
+httpx
+python-dotenv
+
 
 

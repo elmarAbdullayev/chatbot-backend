@@ -7,7 +7,7 @@ from fastapi import APIRouter
 
 
 
-OLLAMA_API_URL = "http://109.205.160.164:11434/generate"
+OLLAMA_API_URL = "http://109.205.160.164:11434/api/generate"
 
 class Message(BaseModel):
     role: str

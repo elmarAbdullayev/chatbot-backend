@@ -9,7 +9,8 @@ load_dotenv()  # .env dosyasından API anahtarını yükler
 
 router = APIRouter()
 
-OPENROUTER_API_KEY = os.getenv("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")
+# API key sollte NUR in der .env Datei stehen!
+OPENROUTER_API_KEY = os.getenv("OPENROUTER_API_KEY")  # Korrekt: Nur der Variablenname
 YOUR_SITE_URL = os.getenv("YOUR_SITE_URL", "")  # Optional
 YOUR_SITE_NAME = os.getenv("YOUR_SITE_NAME", "")  # Optional
 
@@ -26,6 +27,9 @@ async def chatbot(request: Request):
         if not messages:
             raise HTTPException(status_code=400, detail="No messages provided")
 
+        if not OPENROUTER_API_KEY:
+            raise HTTPException(status_code=500, detail="OpenRouter API key not configured")
+
         headers = {
             "Authorization": f"Bearer {OPENROUTER_API_KEY}",
             "Content-Type": "application/json",
@@ -41,7 +45,7 @@ async def chatbot(request: Request):
                 url="https://openrouter.ai/api/v1/chat/completions",
                 headers=headers,
                 json={
-                    "model": "deepseek/deepseek-r1:free",  # Modeli istediğin gibi değiştirebilirsin
+                    "model": "deepseek/deepseek-r1:free",
                     "messages": messages,
                 },
                 timeout=30.0,
@@ -49,11 +53,10 @@ async def chatbot(request: Request):
             response.raise_for_status()
             result = response.json()
 
-        # OpenRouter yanıt yapısı OpenAI'ye benzer
         answer = result["choices"][0]["message"]["content"]
         return {"answer": answer}
 
     except httpx.HTTPStatusError as e:
-        raise HTTPException(status_code=e.response.status_code, detail="OpenRouter API error")
+        raise HTTPException(status_code=e.response.status_code, detail=f"OpenRouter API error: {str(e)}")
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Internal Server Error: {str(e)}")

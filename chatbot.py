@@ -10,7 +10,7 @@ load_dotenv()  # .env dosyasından API anahtarını yükler
 router = APIRouter()
 
 # API key sollte NUR in der .env Datei stehen!
-OPENROUTER_API_KEY = os.getenv("OPENROUTER_API_KEY")  # Korrekt: Nur der Variablenname
+OPENROUTER_API_KEY = os.getenv("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")  # Korrekt: Nur der Variablenname
 YOUR_SITE_URL = os.getenv("YOUR_SITE_URL", "")  # Optional
 YOUR_SITE_NAME = os.getenv("YOUR_SITE_NAME", "")  # Optional
 

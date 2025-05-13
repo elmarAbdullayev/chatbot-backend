@@ -1,20 +1,21 @@
 import os
 from fastapi import HTTPException, Request
 from pydantic import BaseModel
-import httpx  # Moderner als requests für Async
+import httpx
 from dotenv import load_dotenv
 from fastapi import APIRouter
 
+load_dotenv()  # .env dosyasından API anahtarını yükler
 
+router = APIRouter()
 
-OLLAMA_API_URL = "http://109.205.160.164:11434/api/generate"
+OPENROUTER_API_KEY = os.getenv("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")
+YOUR_SITE_URL = os.getenv("YOUR_SITE_URL", "")  # Optional
+YOUR_SITE_NAME = os.getenv("YOUR_SITE_NAME", "")  # Optional
 
 class Message(BaseModel):
     role: str
     content: str
-
-
-router = APIRouter()
 
 @router.post("/chatbot")
 async def chatbot(request: Request):
@@ -25,29 +26,34 @@ async def chatbot(request: Request):
         if not messages:
             raise HTTPException(status_code=400, detail="No messages provided")
 
-        # Ollama erwartet ein anderes Format als DeepSeek
-        last_message = messages[-1]["content"] if messages else ""
+        headers = {
+            "Authorization": f"Bearer {OPENROUTER_API_KEY}",
+            "Content-Type": "application/json",
+        }
+
+        if YOUR_SITE_URL:
+            headers["HTTP-Referer"] = YOUR_SITE_URL
+        if YOUR_SITE_NAME:
+            headers["X-Title"] = YOUR_SITE_NAME
 
         async with httpx.AsyncClient() as client:
             response = await client.post(
-                OLLAMA_API_URL,
+                url="https://openrouter.ai/api/v1/chat/completions",
+                headers=headers,
                 json={
-                    "model": "llama3",  # oder "mistral", "gemma" - je nach installiertem Modell
-                    "prompt": last_message,
-                    "stream": False,  # Für nicht-streaming Antworten
+                    "model": "deepseek/deepseek-r1:free",  # Modeli istediğin gibi değiştirebilirsin
+                    "messages": messages,
                 },
                 timeout=30.0,
             )
             response.raise_for_status()
             result = response.json()
 
-        if not result.get("response"):
-            raise HTTPException(status_code=500, detail="No response from bot")
-
-        return {"answer": result["response"]}
+        # OpenRouter yanıt yapısı OpenAI'ye benzer
+        answer = result["choices"][0]["message"]["content"]
+        return {"answer": answer}
 
     except httpx.HTTPStatusError as e:
-        error_detail = e.response.json().get("error", {}).get("message", str(e))
-        raise HTTPException(status_code=500, detail=f"Ollama API Error: {error_detail}")
+        raise HTTPException(status_code=e.response.status_code, detail="OpenRouter API error")
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Internal Server Error: {str(e)}")

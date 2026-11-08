@@ -10,7 +10,7 @@ from fastapi import APIRouter
 router = APIRouter()
 
 # Konfiguration aus Umgebungsvariablen
-OPENROUTER_API_KEY = "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"
+OPENROUTER_API_KEY = os.getenv("OPENROUTER_API_KEY")
 YOUR_SITE_URL = os.getenv("YOUR_SITE_URL", "https://chatbot-backend-uu0i.onrender.com")  # Optional
 YOUR_SITE_NAME = os.getenv("YOUR_SITE_NAME", "Mein FastApi ChatBot")  # Optional
 

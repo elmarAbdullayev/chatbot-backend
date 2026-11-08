@@ -10,3 +10,6 @@ venv/
 # IDE
 .idea/
 .vscode/
+
+# Local SQLite database (created automatically at startup)
+*.db

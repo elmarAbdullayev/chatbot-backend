@@ -1,3 +1,6 @@
+import os
+
+from dotenv import load_dotenv
 import bcrypt
 from fastapi import HTTPException, Depends
 from pydantic import BaseModel
@@ -25,7 +28,8 @@ with sqlite3.connect("full_datenbank.db") as conn:
 router = APIRouter()
 
 # Token-Einstellungen
-SECRET_KEY = "mein_geheimes_token"
+load_dotenv()
+SECRET_KEY = os.getenv("SECRET_KEY")  # set in .env (see .env.example)
 ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRE_MINUTES = 30
 
